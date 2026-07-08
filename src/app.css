@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  /* brand */
+  --color-spotify: #1ED760;
+  --color-spotify-classic: #1DB954;
+  --color-spotify-hover: #1FDF64;
+
+  /* surfaces */
+  --color-base: #121212;      /* fondo principal */
+  --color-surface: #181818;   /* cards */
+  --color-elevated: #282828;  /* hover / cards elevadas */
+  --color-press: #000000;
+
+  /* text */
+  --color-text: #FFFFFF;
+  --color-subdued: #B3B3B3;
+  --color-muted: #6A6A6A;
+
+  /* borders */
+  --color-line: #2A2A2A;
+
+  /* font + radios */
+  --font-sans: "Montserrat", system-ui, sans-serif;
+  --radius-pill: 500px;
+
+  /* Tokens semánticos de shadcn, mapeados a tu marca.
+     Los componentes de shadcn usan estos nombres (primary, card, border...). */
+  --color-background: var(--color-base);
+  --color-foreground: var(--color-text);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-text);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-text);
+  --color-primary: var(--color-spotify);
+  --color-primary-foreground: var(--color-press);
+  --color-secondary: var(--color-elevated);
+  --color-secondary-foreground: var(--color-text);
+  --color-muted-foreground: var(--color-subdued);
+  --color-accent: var(--color-elevated);
+  --color-accent-foreground: var(--color-text);
+  --color-destructive: #E22134;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: var(--color-line);
+  --color-input: var(--color-line);
+  --color-ring: var(--color-spotify);
+}
+
+/* Estilos por defecto para toda la app.
+   @theme define los tokens; @layer base los APLICA al body. */
+@layer base {
+  body {
+    background-color: var(--color-base);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  /* Tipografía base de toda la app */
+  h1, h2, h3 {
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  p {
+    color: var(--color-subdued);
+  }
+}
