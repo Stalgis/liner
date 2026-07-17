@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "api/daily.js": { "maxDuration": 60 }
+  },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
