@@ -21,8 +21,4 @@ export interface DailyPick {
   worldContext: string
   whyYou: string
   listenFor: string
-  // Agregados por la verificación contra Spotify (server/daily-core.js).
-  verified?: boolean
-  coverUrl?: string | null
-  spotifyUrl?: string | null
 }

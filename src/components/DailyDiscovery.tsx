@@ -104,8 +104,7 @@ function DailyDiscovery({ userId }: DailyDiscoveryProps) {
         const res = await fetch('/api/daily', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Mandamos el token para que el backend valide el álbum en Spotify.
-          body: JSON.stringify({ userId, date, spotifyToken: token, ...taste }),
+          body: JSON.stringify({ userId, date, ...taste }),
         })
         if (!res.ok) {
           const data = await res.json().catch(() => ({}))
@@ -168,22 +167,12 @@ function DailyDiscovery({ userId }: DailyDiscoveryProps) {
       <CardContent className="flex flex-col gap-6 p-6">
         {/* Encabezado: tapa + datos */}
         <div className="flex flex-col gap-4 sm:flex-row">
-          {pick.coverUrl ? (
-            <img
-              src={pick.coverUrl}
-              alt={`Tapa de ${pick.album}`}
-              className="size-28 shrink-0 self-center overflow-hidden rounded-md object-cover sm:self-start"
-            />
-          ) : (
-            <div
-              className="flex size-28 shrink-0 items-center justify-center self-center overflow-hidden rounded-md sm:self-start"
-              style={{
-                backgroundImage: `linear-gradient(140deg, ${from}, ${to})`,
-              }}
-            >
-              <Music2 className="size-10 text-white/80" />
-            </div>
-          )}
+          <div
+            className="flex size-28 shrink-0 items-center justify-center self-center overflow-hidden rounded-md sm:self-start"
+            style={{ backgroundImage: `linear-gradient(140deg, ${from}, ${to})` }}
+          >
+            <Music2 className="size-10 text-white/80" />
+          </div>
           <div className="flex flex-col gap-1 text-center sm:text-left">
             <span className="inline-flex items-center justify-center gap-1.5 self-center text-xs font-semibold uppercase tracking-wide text-spotify sm:self-start">
               <CalendarDays className="size-4" />
@@ -196,22 +185,6 @@ function DailyDiscovery({ userId }: DailyDiscoveryProps) {
               {pick.artist} · {pick.year} · {pick.genre}
             </p>
             <p className="mt-2 text-base text-foreground">{pick.hook}</p>
-            {pick.spotifyUrl ? (
-              <a
-                href={pick.spotifyUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-1 inline-flex items-center justify-center gap-1.5 self-center text-sm font-semibold text-spotify hover:underline sm:self-start"
-              >
-                <Music2 className="size-4" />
-                Abrir en Spotify
-              </a>
-            ) : pick.verified === false ? (
-              <p className="mt-1 text-xs text-muted-foreground">
-                No pudimos verificar este álbum en Spotify; puede que el título
-                no sea exacto.
-              </p>
-            ) : null}
           </div>
         </div>
 

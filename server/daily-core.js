@@ -31,50 +31,6 @@ function dayNumber(dateStr) {
   return Math.floor(new Date(`${dateStr}T00:00:00`).getTime() / 86_400_000)
 }
 
-// Verifica el álbum recomendado contra la API de Spotify y, si lo encuentra,
-// corrige los datos con los REALES (título canónico, año, portada, link).
-// Claude a veces acierta el artista y la época pero inventa el título exacto;
-// esto lo endereza. Usa el token del usuario (viene del frontend).
-// Si algo falla o no hay match, devuelve el álbum tal cual con verified: false.
-async function verifyOnSpotify(daily, token) {
-  if (!token) return { ...daily, verified: false }
-  try {
-    const q = encodeURIComponent(`${daily.album} ${daily.artist}`)
-    const res = await fetch(
-      `https://api.spotify.com/v1/search?q=${q}&type=album&limit=5`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    )
-    if (!res.ok) return { ...daily, verified: false }
-
-    const data = await res.json()
-    const items = data.albums?.items ?? []
-
-    // Nos quedamos con el primer álbum cuyo artista coincida con el sugerido.
-    const wanted = daily.artist.toLowerCase()
-    const match = items.find((al) =>
-      (al.artists ?? []).some((a) => {
-        const name = a.name.toLowerCase()
-        return name.includes(wanted) || wanted.includes(name)
-      }),
-    )
-    if (!match) return { ...daily, verified: false }
-
-    // Reemplazamos con los datos canónicos de Spotify.
-    return {
-      ...daily,
-      album: match.name,
-      artist: (match.artists ?? []).map((a) => a.name).join(', '),
-      year: match.release_date?.slice(0, 4) || daily.year,
-      coverUrl: match.images?.[0]?.url ?? null,
-      spotifyUrl: match.external_urls?.spotify ?? null,
-      verified: true,
-    }
-  } catch (err) {
-    console.error('[verifyOnSpotify] no se pudo verificar:', err.message)
-    return { ...daily, verified: false }
-  }
-}
-
 // Genera (o devuelve del cache) el descubrimiento del día.
 // input = { userId, topArtists, topTracks, genres, date }
 // return = { status: number, body: object }
@@ -86,7 +42,6 @@ export async function generateDaily(input) {
       topTracks = [],
       genres = [],
       date,
-      spotifyToken,
     } = input ?? {}
 
     const today =
@@ -177,8 +132,7 @@ La idea es que ANTES de darle play entienda de dónde viene la música. Respond�
       }
     }
 
-    // Verificamos contra Spotify y corregimos antes de cachear/guardar.
-    const daily = await verifyOnSpotify(JSON.parse(match[0]), spotifyToken)
+    const daily = JSON.parse(match[0])
     dailyCache.set(cacheKey, daily)
 
     // Guardamos lo recomendado para no repetirlo en los próximos días.
