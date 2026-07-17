@@ -87,7 +87,7 @@ Reglas:
 - NO recomiendes ninguno de los artistas de su lista de favoritos. Buscá artistas ADYACENTES y menos masivos, que un fan de esos artistas amaría descubrir.
 - EVITÁ los discos obvios, canónicos o "grandes éxitos" que cualquier fan del género ya tiene escuchados. Arriesgá: preferí joyas de culto, artistas de perfil bajo, escenas o subgéneros menos difundidos.
 - El álbum de hoy debe ser: ${theme}.
-- Usá la búsqueda web para verificar datos reales (año, sello, contexto histórico). No inventes datos.
+- Usá SOLO datos que conozcas con certeza (año, sello, contexto histórico). Si no estás seguro de algún dato, elegí otro álbum que sí conozcas bien. NUNCA inventes álbumes, artistas ni años.
 
 La idea es que ANTES de darle play entienda de dónde viene la música. Respondé ÚNICAMENTE con un JSON válido (sin markdown, sin texto extra) con este formato exacto:
 {
@@ -103,25 +103,17 @@ La idea es que ANTES de darle play entienda de dónde viene la música. Respond�
   "listenFor": "qué prestar atención al escucharlo, en español (1 frase)"
 }`
 
-    // La búsqueda web es server-side: si llega a su límite interno, devuelve
-    // stop_reason "pause_turn" y hay que reenviar para que continúe.
-    const messages = [{ role: 'user', content: taste }]
-    let response
-
-    for (let i = 0; i < 5; i++) {
-      response = await anthropic.messages.create({
-        model: 'claude-opus-4-8',
-        max_tokens: 6000,
-        // Opus razona el descubrimiento antes de responder (mejores picks).
-        thinking: { type: 'adaptive' },
-        system,
-        // Opus soporta el web search con filtrado dinámico (más preciso).
-        tools: [{ type: 'web_search_20260209', name: 'web_search' }],
-        messages,
-      })
-      if (response.stop_reason !== 'pause_turn') break
-      messages.push({ role: 'assistant', content: response.content })
-    }
+    // Una sola llamada, sin web search: así entra holgado en el límite de
+    // tiempo de la función serverless de Vercel (antes daba 504 por tardar).
+    // effort 'low' recorta el "pensamiento" de Opus → más rápido y más barato.
+    const response = await anthropic.messages.create({
+      model: 'claude-opus-4-8',
+      max_tokens: 2000,
+      thinking: { type: 'adaptive' },
+      output_config: { effort: 'low' },
+      system,
+      messages: [{ role: 'user', content: taste }],
+    })
 
     if (response.stop_reason === 'refusal') {
       return { status: 422, body: { error: 'Claude rechazó la solicitud.' } }
