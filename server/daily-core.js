@@ -106,9 +106,11 @@ La idea es que ANTES de darle play entienda de dónde viene la música. Respond�
     // Una sola llamada, sin web search: así entra holgado en el límite de
     // tiempo de la función serverless de Vercel (antes daba 504 por tardar).
     // effort 'low' recorta el "pensamiento" de Opus → más rápido y más barato.
+    // OJO: el thinking gasta tokens del mismo max_tokens. Con 2000 se cortaba
+    // el JSON (campos vacíos); 4000 deja lugar para pensar Y escribir todo.
     const response = await anthropic.messages.create({
       model: 'claude-opus-4-8',
-      max_tokens: 2000,
+      max_tokens: 4000,
       thinking: { type: 'adaptive' },
       output_config: { effort: 'low' },
       system,
