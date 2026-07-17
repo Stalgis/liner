@@ -4,8 +4,12 @@ import type { SpotifyUser } from '../types'
 // El Client ID sale de tu app en https://developer.spotify.com/dashboard
 // y se lee desde .env.local (variable VITE_SPOTIFY_CLIENT_ID).
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
-// Debe coincidir EXACTO con la Redirect URI registrada en el dashboard.
-const REDIRECT_URI = 'http://127.0.0.1:5173/callback'
+
+// Debe coincidir EXACTO con una Redirect URI registrada en el dashboard.
+// Usamos el origen actual para que funcione en local (127.0.0.1:5173) y en Vercel.
+function getRedirectUri(): string {
+  return `${window.location.origin}/callback`
+}
 // Permisos que le pedimos al usuario. user-top-read es nuevo: habilita leer
 // sus artistas y canciones más escuchados (sus "gustos previos").
 const SCOPES = ['user-read-private', 'user-read-email', 'user-top-read']
@@ -82,7 +86,7 @@ export async function login(): Promise<void> {
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     response_type: 'code',
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: getRedirectUri(),
     scope: SCOPES.join(' '),
     code_challenge_method: 'S256',
     code_challenge: challenge,
@@ -110,7 +114,7 @@ export async function handleRedirectCallback(code: string): Promise<void> {
     client_id: CLIENT_ID,
     grant_type: 'authorization_code',
     code,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: getRedirectUri(),
     code_verifier: verifier,
   })
 
